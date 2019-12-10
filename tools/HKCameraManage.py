@@ -41,9 +41,7 @@ class HKCManage:
         :param logPre:
         """
         self.logPre = logPre
-        self.URL = f"rtsp://{user}:{pwd}@{ip}/h264/ch1/sub/av_stream"
-        if port:
-            self.URL = f"rtsp://{user}:{pwd}@{ip}:{port}/h264/ch1/sub/av_stream"
+        self.URL = f"rtsp://{user}:{pwd}@{ip}:{port}/h264/ch1/sub/av_stream"
         # 截图或视频保存位置
         img_dir = path.join(BASE_DIR, "logs", "camera_img", place, fmt_date(fmt=FMT_DATE))
         if not path.exists(img_dir):
@@ -125,68 +123,23 @@ class HKCManage:
                 outfile.release()
             destroyAllWindows()
 
-
-def t1(carNo, ip="10.0.0.243", port=None, user="admin", pwd="Whl649219"):
-    """
-    主码流：
-        rtsp://admin:12345@192.0.0.64:554/h264/ch1/main/av_stream
-        rtsp://admin:12345@192.0.0.64:554/MPEG-4/ch1/main/av_stream
-
-    子码流：
-        rtsp://admin:12345@192.0.0.64/mpeg4/ch1/sub/av_stream
-        rtsp://admin:12345@192.0.0.64/h264/ch1/sub/av_stream
-    :return:
-    """
-    url = f"rtsp://{user}:{pwd}@{ip}/h264/ch1/main/av_stream"
-    if port:
-        url = f"rtsp://{user}:{pwd}@{ip}:{port}/h264/ch1/main/av_stream"
-
-    # 截图或视频保存位置-01.可以为摄像头位置类型
-    img_dir = path.join(BASE_DIR, "logs", "camera_img", "01", fmt_date(fmt=FMT_DATE))
-    if not path.exists(img_dir):
-        makedirs(img_dir)
-    date_now = fmt_date(fmt=FMT_DATETIME)
-    # 截图保存文件名
-    img_path = path.join(img_dir, carNo + "_" + date_now + ".jpg")
-    # 视频保存文件名
-    video_path = path.join(img_dir, carNo + "_" + date_now + ".avi")
-
-    try:
-        # 打开rtsp
-        cap = VideoCapture(url)
-        # 视频分辨率
-        size = (int(cap.get(CAP_PROP_FRAME_WIDTH)), int(cap.get(CAP_PROP_FRAME_HEIGHT)))
-        # 帧率
-        fps = cap.get(CAP_PROP_FPS)
-        # 视频保存格式avi
-        fourcc = VideoWriter_fourcc(*'XVID')
-        # 视频保存obj
-        outfile = VideoWriter(video_path, fourcc, fps, size)
-
-        # 预览窗口
+    def show(self):
+        """
+        预览
+        :return:
+        """
         namedWindow('view', WINDOW_NORMAL | WINDOW_KEEPRATIO)
-
+        # 打开rtsp
+        cap = VideoCapture(self.URL)
         ret, frame = cap.read()
-        cnt = 0
         while ret:
-            cnt += 1
             ret, frame = cap.read()
-            outfile.write(frame)
-            if cnt == 1:
-                imencode('.jpg', frame)[1].tofile(img_path)
-
             imshow("view", frame)
             if waitKey(1) & 0xFF == ord('q'):
                 break
         else:
             consoleLog("未读取到视频")
 
-        cap.release()
-        outfile.release()
-        destroyAllWindows()
-    except:
-        consoleLog("异常")
-
 
 if __name__ == '__main__':
-    t1("鲁A12345")
+    pass
